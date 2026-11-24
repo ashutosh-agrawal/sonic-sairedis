@@ -25,7 +25,7 @@ RedisChannel::RedisChannel(
     m_asicState             = std::make_shared<swss::ProducerTable>(m_redisPipeline.get(), ASIC_STATE_TABLE, true);
     m_getConsumer           = std::make_shared<swss::ConsumerTable>(m_db.get(), REDIS_TABLE_GETRESPONSE);
 
-    m_dbNtf                 = std::make_shared<swss::DBConnector>(dbAsic, 0, false);
+    m_dbNtf                 = std::make_shared<swss::DBConnector>(dbAsic, 0);
     // RedisChannel runs a dedicated notification thread inside every
     // libsairedis-linked process (orchagent, etc.) that SUBSCRIBE's
     // to "NOTIFICATIONS" -- the same channel orchagent's per-orch
