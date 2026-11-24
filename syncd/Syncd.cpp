@@ -223,7 +223,7 @@ Syncd::Syncd(
     }
 
     bool isVirtualSwitch = m_profileMap.find(SAI_KEY_VS_SWITCH_TYPE) != m_profileMap.end();
-    swss::DBConnector configDb("CONFIG_DB", 0);
+    swss::DBConnector configDb("CONFIG_DB", 0, false);
     swss::Table deviceMetadataTable(&configDb, "DEVICE_METADATA");
     std::string switchType;
     deviceMetadataTable.hget("localhost", "switch_type", switchType);

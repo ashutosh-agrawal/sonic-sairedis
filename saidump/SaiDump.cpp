@@ -569,7 +569,7 @@ void SaiDump::dumpFromRedisDb(int argc, char **argv)
          return;
     }
 
-    swss::DBConnector db("ASIC_DB", 0);
+    swss::DBConnector db("ASIC_DB", 0, false);
     swss::Table t(&db, table);
 
     TableDump dump;

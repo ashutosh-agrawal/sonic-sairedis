@@ -17,7 +17,7 @@ void Sai::startUnittestThread()
 
     auto ctx = getContext(m_globalContext);
 
-    m_dbNtf = std::make_shared<swss::DBConnector>(ctx->getContextConfig()->m_dbAsic, 0);
+    m_dbNtf = std::make_shared<swss::DBConnector>(ctx->getContextConfig()->m_dbAsic, 0, false);
 
     m_unittestChannelNotificationConsumer = std::make_shared<swss::NotificationConsumer>(m_dbNtf.get(), SAI_VS_UNITTEST_CHANNEL);
 
