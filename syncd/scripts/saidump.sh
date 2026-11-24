@@ -5,39 +5,20 @@ save_saidump_by_rdb()
 {
   local filepath="/var/run/redis/sonic-db/database_config.json"
 
-  # Get hostname, port, redis directory
-  local redis_settings
-  redis_settings=$(python3 -c "
+  local redis_socket redis_dir
+  redis_socket=$(python3 -c '
 import json
-with open('$filepath') as json_file:
-  data = json.load(json_file)
-  instance = data['INSTANCES']['redis']
-  print(instance['hostname'], instance['port'], instance['unix_socket_path'], sep='\n')") || return 1
-
-  local -a redis_config
-  mapfile -t redis_config <<< "$redis_settings"
-  local hostname=${redis_config[0]}
-  local port=${redis_config[1]}
-  local redis_dir
-  redis_dir=$(dirname -- "${redis_config[2]}")
-  logger "saidump.sh: hostname:$hostname, port:$port, redis_dir:$redis_dir"
-
-  logger "saidump.sh: [1] Get the remote backups of RDB file."
-  python3 - "$hostname" "$port" "${redis_config[2]}" "$redis_dir/dump.rdb" <<'PY'
-import subprocess
 import sys
 
-hostname, port, socket_path, destination = sys.argv[1:]
-if int(port) == 0:
-    from swsscommon.swsscommon import exportRedisRdb
-    exportRedisRdb(socket_path, destination, 60000, True)
-else:
-    command = ['redis-cli', '-h', hostname, '-p', port, '--rdb', destination]
-    subprocess.run(command, stdout=subprocess.DEVNULL,
-                   stderr=subprocess.DEVNULL, check=True)
+with open(sys.argv[1]) as config_file:
+    config = json.load(config_file)
+instance = config["DATABASES"]["ASIC_DB"]["instance"]
+print(config["INSTANCES"][instance]["unix_socket_path"])
+' "$filepath")
+  redis_dir=$(dirname -- "$redis_socket")
 
-PY
-  [ $? -eq 0 ] || return 1
+  logger "saidump.sh: [1] Export the local ASIC_DB RDB snapshot."
+  sonic-db-cli -s --authenticate --rdb "$redis_dir/dump.rdb" ASIC_DB > /dev/null 2>&1
 
   logger "saidump.sh: [2] Run rdb-cli command to convert the dump files into JSON files."
   rdb-cli "$redis_dir/dump.rdb" json | tee "$redis_dir/dump.json" > /dev/null

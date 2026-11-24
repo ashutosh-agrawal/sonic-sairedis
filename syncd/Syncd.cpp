@@ -183,7 +183,7 @@ Syncd::Syncd(
 
     m_vendorSai->setOptions(VendorSaiOptions::OPTIONS_KEY, vso);
 
-    m_manager = std::make_shared<FlexCounterManager>(m_vendorSai, m_contextConfig->m_dbCounters, m_commandLineOptions->m_supportingBulkCounterGroups);
+    m_manager = std::make_shared<FlexCounterManager>(m_vendorSai, m_contextConfig->m_dbCounters, m_commandLineOptions->m_supportingBulkCounterGroups, false, true);
 
     loadProfileMap();
 
@@ -6555,7 +6555,7 @@ void Syncd::setSaiApiLogLevel()
         swss::Logger::linkToDb(
                 sai_metadata_enum_sai_api_t.valuesnames[idx],
                 std::bind(&Syncd::saiLoglevelNotify, this, _1, _2),
-                sai_serialize_log_level(SAI_LOG_LEVEL_NOTICE));
+                sai_serialize_log_level(SAI_LOG_LEVEL_NOTICE), true);
     }
 }
 
